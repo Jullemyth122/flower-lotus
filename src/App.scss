@@ -1,0 +1,359 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  App.scss  — Romantic Flower Offering UI
+//  Aesthetic: Dark Luxury Editorial · Warm Crimson · Candlelit Intimacy
+// ─────────────────────────────────────────────────────────────────────────────
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+Infant:ital,wght@1,300&display=swap');
+
+// ── Design Tokens ────────────────────────────────────────────────────────────
+$bg: #03050a;
+$red-core: #ff1133;
+$red-glow: rgba(255, 30, 40, 0.7);
+$rose: rgba(255, 170, 148, 0.75);
+$rose-dim: rgba(255, 200, 182, 0.42);
+$text: rgba(255, 242, 236, 0.94);
+$serif: 'Cormorant Garamond', 'Georgia', serif;
+$serif-italic: 'Cormorant Infant', 'Georgia', serif;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+@mixin col-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin glow($clr, $r: 40px) {
+    text-shadow:
+        0 0 $r rgba($clr, 0.65),
+        0 0 ($r * 2.2) rgba($clr, 0.28);
+}
+
+// ── Reset ────────────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+// ── App Shell ────────────────────────────────────────────────────────────────
+.app {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: $bg;
+    font-family: $serif;
+}
+
+// ── Falling Rose Petals ──────────────────────────────────────────────────────
+.petals {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+}
+
+// Per-petal configuration tables (18 petals)
+$p-left: 4, 10, 18, 26, 33, 41, 49, 56, 63, 70, 77, 84, 91, 7, 22, 38, 60, 88;
+$p-delay: 0, 3.1, 6.4, 1.3, 8.2, 4.5, 10.7, 2.8, 7.0, 5.3, 11.6, 0.9, 9.4, 4.1, 7.8, 13.2, 2.5, 6.9;
+$p-dur: 13, 17, 11, 19, 14, 16, 12, 15, 18, 13, 17, 21, 11, 14, 16, 12, 15, 13;
+// nested list: width height pairs
+$p-size: 8 15, 6 11, 10 18, 7 13, 9 16, 7 13, 11 19, 6 11, 9 16, 8 15, 7 13, 10 18, 8 14, 7 12, 9 16, 6 11, 9 16, 7 12;
+
+.petals__leaf {
+    position: absolute;
+    top: -24px;
+    border-radius: 50% 2% 50% 2%;
+    background: radial-gradient(ellipse at 32% 28%,
+            rgba(255, 52, 38, 0.72),
+            rgba(130, 3, 14, 0.18));
+    filter: blur(0.45px);
+    opacity: 0;
+    animation: leaf-fall linear infinite;
+
+    @for $i from 1 through 18 {
+        $sz: nth($p-size, $i);
+
+        &--#{$i} {
+            left: nth($p-left, $i) * 1%;
+            width: nth($sz, 1) * 1px;
+            height: nth($sz, 2) * 1px;
+            animation-delay: -(nth($p-delay, $i)) * 1s; // negative = start mid-flight
+            animation-duration: nth($p-dur, $i) * 1s;
+            // Vary initial rotation so petals face different angles
+            transform: rotate(#{($i - 1) * 23}deg);
+        }
+    }
+}
+
+@keyframes leaf-fall {
+    0% {
+        transform: translateY(0) translateX(0px) rotate(0deg);
+        opacity: 0;
+    }
+
+    7% {
+        opacity: 0.52;
+    }
+
+    35% {
+        transform: translateY(35vh) translateX(22px) rotate(130deg);
+    }
+
+    68% {
+        transform: translateY(72vh) translateX(-16px) rotate(255deg);
+        opacity: 0.28;
+    }
+
+    100% {
+        transform: translateY(110vh) translateX(8px) rotate(375deg);
+        opacity: 0;
+    }
+}
+
+// ── Intro Overlay ─────────────────────────────────────────────────────────────
+.intro {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    @include col-center;
+    // Tinted radial so the 3D flower is faintly visible beneath
+    background: radial-gradient(ellipse at 50% 56%,
+            rgba(58, 0, 7, 0.58) 0%,
+            rgba($bg, 0.86) 58%,
+            rgba($bg, 0.97) 100%);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: fade-in 1.4s ease forwards;
+
+    // ── Exit ──
+    &--exit {
+        animation: fade-out 1.1s ease forwards;
+        pointer-events: none; // Stops accidental double-clicks during fade
+    }
+
+    // ── Atmospheric glow blob behind the card ──
+    &__glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+        width: min(600px, 80vw);
+        height: min(600px, 80vw);
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(200, 10, 20, 0.08) 0%, transparent 70%);
+        pointer-events: none;
+        animation: pulse-glow 4s ease-in-out infinite;
+    }
+
+    // ── Card ──
+    &__card {
+        @include col-center;
+        text-align: center;
+        padding: 2rem 1.5rem;
+        max-width: min(480px, 90vw);
+        animation: rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+    }
+
+    // ── Ornament star ──
+    &__ornament {
+        display: block;
+        font-size: 0.9rem;
+        color: rgba(255, 145, 115, 0.45);
+        @include glow(#ff2200, 16px);
+        margin-bottom: 1.3rem;
+
+        &--low {
+            margin-top: 1.4rem;
+            margin-bottom: 0;
+        }
+    }
+
+    // ── Sub-label ──
+    &__eyebrow {
+        font-size: 0.65rem;
+        letter-spacing: 0.5em;
+        text-transform: uppercase;
+        color: rgba(255, 155, 135, 0.55);
+        margin-bottom: 0.9rem;
+    }
+
+    // ── Hero title ──
+    &__title {
+        font-size: clamp(3.8rem, 14vw, 7rem);
+        font-weight: 300;
+        font-style: italic;
+        color: $text;
+        @include glow(#ff2210, 58px);
+        line-height: 1;
+        margin-bottom: 2rem;
+        // Subtle letter-spacing makes the italic feel more editorial
+        letter-spacing: -0.01em;
+    }
+
+    // ── Poem ──
+    &__verse {
+        font-size: clamp(0.88rem, 2.4vw, 1.08rem);
+        font-style: italic;
+        color: $rose-dim;
+        line-height: 2.1;
+        letter-spacing: 0.05em;
+        margin-bottom: 3rem;
+    }
+
+    // ── CTA Button ──
+    &__cta {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.9rem 2.6rem;
+        font-family: $serif;
+        font-size: 0.72rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: rgba(255, 218, 205, 0.82);
+        background: transparent;
+        border: 1px solid rgba(255, 75, 50, 0.28);
+        cursor: pointer;
+        transition: color 0.38s, border-color 0.38s, transform 0.38s, box-shadow 0.38s;
+        overflow: hidden;
+
+        // Radial hover glow
+        &::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 110%, rgba(255, 55, 25, 0.13), transparent 65%);
+            opacity: 0;
+            transition: opacity 0.38s ease;
+        }
+
+        &:hover {
+            color: #fff;
+            border-color: rgba(255, 125, 95, 0.62);
+            transform: translateY(-3px);
+            box-shadow:
+                0 0 30px rgba(255, 55, 25, 0.2),
+                inset 0 0 22px rgba(255, 45, 18, 0.07);
+
+            &::before {
+                opacity: 1;
+            }
+
+            .intro__cta-line {
+                transform: scaleX(1.25);
+                opacity: 0.5;
+            }
+        }
+
+        &:active {
+            transform: translateY(-1px);
+        }
+    }
+
+    &__cta-label {
+        position: relative;
+        z-index: 1;
+    }
+
+    // Decorative underline that expands on hover
+    &__cta-line {
+        display: block;
+        width: 28px;
+        height: 1px;
+        background: rgba(255, 130, 100, 0.4);
+        transition: transform 0.4s ease, opacity 0.4s ease;
+        transform-origin: center;
+    }
+}
+
+// ── Dedication (post-reveal, always pointer-events: none) ─────────────────────
+.dedication {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    animation: fade-in 2.2s ease forwards;
+
+    // Top label
+    &__title {
+        position: absolute;
+        top: 2.4rem;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 0.62rem;
+        letter-spacing: 0.58em;
+        text-transform: uppercase;
+        color: rgba(255, 125, 100, 0.38);
+        @include glow(#ff1800, 16px);
+    }
+
+    // Bottom romantic quote
+    &__quote {
+        position: absolute;
+        bottom: 2.4rem;
+        left: 0;
+        right: 0;
+        padding: 0 1.8rem;
+        text-align: center;
+        font-size: clamp(0.66rem, 1.8vw, 0.87rem);
+        font-style: italic;
+        letter-spacing: 0.08em;
+        line-height: 1.8;
+        color: rgba(255, 140, 115, 0.48);
+    }
+}
+
+// ── Keyframes ────────────────────────────────────────────────────────────────
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes rise {
+    from {
+        opacity: 0;
+        transform: translateY(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.06);
+    }
+}
