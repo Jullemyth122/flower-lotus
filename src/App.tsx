@@ -5,7 +5,7 @@ import { OrbitControls } from '@react-three/drei'
 import FlowerScene from './FlowerScene2'
 import './App.scss'
 
-// ── Static petal count (avoids recalculating on re-render) ──
+// ── Static petal count ──
 const PETAL_COUNT = 18
 
 const App = () => {
@@ -20,7 +20,6 @@ const App = () => {
 
   return (
     <main className="app">
-
       {/* ── 3D Canvas ─────────────────────────────────────────────────── */}
       <Canvas
         camera={{ position: [0, 0, 3], fov: 75 }}
@@ -43,17 +42,9 @@ const App = () => {
         }}
         style={{ width: '100%', height: '100vh' }}
       >
-        <FlowerScene />
+        {/* Pass the opening state down to the scene */}
+        <FlowerScene isOpening={exiting || revealed} />
 
-        {/*
-          ── Orbit Controls ────────────────────────────────────────────────
-          enablePan        → no repositioning the scene
-          minDistance      → can't zoom into the flower's core
-          maxDistance      → can't zoom far enough to lose detail
-          minPolarAngle    → prevents the camera going below floor level
-          maxPolarAngle    → keeps a slight top-down viewing angle max
-          autoRotate       → slow cinematic spin while idle
-        */}
         <OrbitControls
           enablePan={false}
           enableDamping
@@ -67,7 +58,7 @@ const App = () => {
         />
       </Canvas>
 
-      {/* ── Floating Petals (always present) ──────────────────────────── */}
+      {/* ── Floating Petals ──────────────────────────── */}
       <div className="petals" aria-hidden="true">
         {Array.from({ length: PETAL_COUNT }, (_, i) => (
           <span key={i} className={`petals__leaf petals__leaf--${i + 1}`} />
@@ -103,7 +94,7 @@ const App = () => {
         </div>
       )}
 
-      {/* ── Dedication — shown after the reveal ───────────────────────── */}
+      {/* ── Dedication ───────────────────────── */}
       {revealed && (
         <div className="dedication">
           <p className="dedication__title">for you</p>
@@ -112,7 +103,6 @@ const App = () => {
           </p>
         </div>
       )}
-
     </main>
   )
 }
